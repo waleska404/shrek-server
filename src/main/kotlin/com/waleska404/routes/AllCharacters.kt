@@ -22,7 +22,7 @@ fun Route.getAllCharacters() {
         } catch (e: IllegalArgumentException) {
             call.respond(
                 message = ApiResponse(success = false, message = "Characters not Found."),
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.NotFound
             )
         }
     }
