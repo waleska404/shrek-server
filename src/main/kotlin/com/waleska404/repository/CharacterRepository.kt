@@ -3,7 +3,7 @@ package com.waleska404.repository
 import com.waleska404.models.ApiResponse
 import com.waleska404.models.Character
 
-interface CharactersRepository {
+interface CharacterRepository {
 
     val characters: Map<Int, List<Character>>
 
