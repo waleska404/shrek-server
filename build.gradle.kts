@@ -41,4 +41,9 @@ dependencies {
 
     implementation("io.ktor:ktor-server-default-headers:$ktor_version")
     implementation("io.ktor:ktor-server-status-pages:$ktor_version")
+
+    //test
+    testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
+    //testImplementation("org.jetbrains.kotlin:kotlin-test:$ktor_version")
+
 }
