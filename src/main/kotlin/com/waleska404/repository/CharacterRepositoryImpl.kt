@@ -396,10 +396,31 @@ class CharacterRepositoryImpl : CharacterRepository {
     )
 
     override suspend fun getAllCharacters(page: Int): ApiResponse {
-        TODO("Not yet implemented")
+        return ApiResponse(
+            success = true,
+            message = "OK",
+            prevPage = calculatePrevPage(page),
+            nextPage = calculateNextPage(page),
+            characters = characters[page]!!
+        )
     }
 
-    override suspend fun searchCharacters(name: String): ApiResponse {
-        TODO("Not yet implemented")
+    private fun calculateNextPage(page: Int) = if (page in 1..4) page + 1 else null
+    private fun calculatePrevPage(page: Int) = if (page in 2..5) page - 1 else null
+
+    override suspend fun searchCharacters(name: String?): ApiResponse {
+        return ApiResponse(
+            success = true,
+            message = "OK",
+            characters = findCharacters(query = name)
+        )
+    }
+
+    private fun findCharacters(query: String?): List<Character> {
+        return if (!query.isNullOrEmpty()) {
+            characters.values.flatten().filter { it.name.contains(query, ignoreCase = true) }
+        } else {
+            emptyList()
+        }
     }
 }

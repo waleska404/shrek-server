@@ -7,19 +7,16 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
-import java.lang.IllegalArgumentException
 import java.lang.NumberFormatException
 
-fun Route.getAllCharacters() {
+fun Route.searchCharacters() {
     val characterRepository: CharacterRepository by inject()
 
-    get("/shrek/characters") {
+    get("/shrek/characters/search") {
         try {
-            val page = call.request.queryParameters["page"]?.toInt() ?: 1
-            require(page in 1..5)
+            val name = call.request.queryParameters["name"]
 
-            val apiResponse = characterRepository.getAllCharacters(page = page)
-
+            val apiResponse = characterRepository.searchCharacters(name = name)
             call.respond(
                 message = apiResponse,
                 status = HttpStatusCode.OK
@@ -28,11 +25,6 @@ fun Route.getAllCharacters() {
             call.respond(
                 message = ApiResponse(success = false, message = "Only Numbers Allowed."),
                 status = HttpStatusCode.BadRequest
-            )
-        } catch (e: IllegalArgumentException) {
-            call.respond(
-                message = ApiResponse(success = false, message = "Characters not Found."),
-                status = HttpStatusCode.NotFound
             )
         }
     }
