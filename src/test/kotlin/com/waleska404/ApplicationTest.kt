@@ -23,7 +23,7 @@ class ApplicationTest {
 
     @Before
     fun setup() {
-        startKoin{
+        startKoin {
             modules(koinModule)
         }
     }
@@ -65,24 +65,6 @@ class ApplicationTest {
     }
 
     @Test
-    fun `access all heroes endpoint, query second page, assert correct information`() = testApplication {
-        val response = client.get("/shrek/characters?page=2")
-        assertEquals(
-            expected = HttpStatusCode.OK,
-            actual = response.status
-        )
-        val expected = ApiResponse(
-            success = true,
-            message = "OK",
-            prevPage = 1,
-            nextPage = 3,
-            characters = characterRepository.page2
-        )
-        val actual = Json.decodeFromString<ApiResponse>(response.body())
-        assertEquals(expected = expected, actual = actual)
-    }
-
-    @Test
     fun `access all heroes endpoint, query all pages, assert correct information`() =
         testApplication {
             val pages = 1..5
@@ -112,6 +94,44 @@ class ApplicationTest {
                     actual = actual
                 )
             }
+        }
+
+    @Test
+    fun `access all heroes endpoint, query non existing page number, assert error`() =
+        testApplication {
+            val response = client.get("/shrek/characters?page=7")
+            assertEquals(
+                expected = HttpStatusCode.NotFound,
+                actual = response.status
+            )
+            val expected = ApiResponse(
+                success = false,
+                message = "Characters not Found.",
+            )
+            val actual = Json.decodeFromString<ApiResponse>(response.body())
+            assertEquals(
+                expected = expected,
+                actual = actual
+            )
+        }
+
+    @Test
+    fun `access all heroes endpoint, query invalid page number, assert error`() =
+        testApplication {
+            val response = client.get("/shrek/characters?page=invalid")
+            assertEquals(
+                expected = HttpStatusCode.BadRequest,
+                actual = response.status
+            )
+            val expected = ApiResponse(
+                success = false,
+                message = "Only Numbers Allowed.",
+            )
+            val actual = Json.decodeFromString<ApiResponse>(response.body())
+            assertEquals(
+                expected = expected,
+                actual = actual
+            )
         }
 
     private fun calculateNextPage(page: Int) = if (page in 1..4) page + 1 else null
