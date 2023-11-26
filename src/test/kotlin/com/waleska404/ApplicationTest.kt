@@ -47,7 +47,7 @@ class ApplicationTest {
     }
 
     @Test
-    fun `access all heroes endpoint, assert correct information`() = testApplication {
+    fun `access all characters endpoint, assert correct information`() = testApplication {
         val response = client.get("/shrek/characters")
         assertEquals(
             expected = HttpStatusCode.OK,
@@ -65,7 +65,7 @@ class ApplicationTest {
     }
 
     @Test
-    fun `access all heroes endpoint, query all pages, assert correct information`() =
+    fun `access all characters endpoint, query all pages, assert correct information`() =
         testApplication {
             val pages = 1..5
             val characters = listOf(
@@ -97,26 +97,18 @@ class ApplicationTest {
         }
 
     @Test
-    fun `access all heroes endpoint, query non existing page number, assert error`() =
+    fun `access all characters endpoint, query non existing page number, assert error`() =
         testApplication {
             val response = client.get("/shrek/characters?page=7")
             assertEquals(
                 expected = HttpStatusCode.NotFound,
                 actual = response.status
             )
-            val expected = ApiResponse(
-                success = false,
-                message = "Characters not Found.",
-            )
-            val actual = Json.decodeFromString<ApiResponse>(response.body())
-            assertEquals(
-                expected = expected,
-                actual = actual
-            )
+            assertEquals(expected = "Page not Found.", actual = response.bodyAsText())
         }
 
     @Test
-    fun `access all heroes endpoint, query invalid page number, assert error`() =
+    fun `access all characters endpoint, query invalid page number, assert error`() =
         testApplication {
             val response = client.get("/shrek/characters?page=invalid")
             assertEquals(
@@ -132,6 +124,62 @@ class ApplicationTest {
                 expected = expected,
                 actual = actual
             )
+        }
+
+    @Test
+    fun `access search character endpoint, query character name, assert single character result`() =
+        testApplication {
+            val response = client.get("/shrek/characters/search?name=sas")
+            assertEquals(
+                expected = HttpStatusCode.OK,
+                actual = response.status
+            )
+            val actual = Json.decodeFromString<ApiResponse>(response.body()).characters.size
+            assertEquals(
+                expected = 1,
+                actual = actual
+            )
+        }
+
+    @Test
+    fun `access search character endpoint, query character name, assert multiple character result`() =
+        testApplication {
+            val response = client.get("/shrek/characters/search?name=sa")
+            assertEquals(
+                expected = HttpStatusCode.OK,
+                actual = response.status
+            )
+            val actual = Json.decodeFromString<ApiResponse>(response.body()).characters.size
+            assertEquals(
+                expected = 3,
+                actual = actual
+            )
+        }
+
+    @Test
+    fun `access search character endpoint, query non existing character, assert empty list result`() =
+        testApplication {
+            val response = client.get("/shrek/characters/search?name=unknown")
+            assertEquals(
+                expected = HttpStatusCode.OK,
+                actual = response.status
+            )
+            val actual = Json.decodeFromString<ApiResponse>(response.body()).characters.size
+            assertEquals(
+                expected = 0,
+                actual = actual
+            )
+        }
+
+    @Test
+    fun `access non existing endpoint, assert not found`() =
+        testApplication {
+            val response = client.get("/unknown")
+            assertEquals(
+                expected = HttpStatusCode.NotFound,
+                actual = response.status
+            )
+            assertEquals(expected = "Page not Found.", actual = response.bodyAsText())
         }
 
     private fun calculateNextPage(page: Int) = if (page in 1..4) page + 1 else null
