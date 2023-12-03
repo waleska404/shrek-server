@@ -1,1 +1,1 @@
-# shrek API
+# shrek API server
