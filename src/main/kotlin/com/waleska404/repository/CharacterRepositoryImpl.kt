@@ -401,7 +401,8 @@ class CharacterRepositoryImpl : CharacterRepository {
             message = "OK",
             prevPage = calculatePrevPage(page),
             nextPage = calculateNextPage(page),
-            characters = characters[page]!!
+            characters = characters[page]!!,
+            lastUpdated = System.currentTimeMillis()
         )
     }
 
